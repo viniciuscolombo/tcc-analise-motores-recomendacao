@@ -1,4 +1,4 @@
-# tcc-analise-motores-recomendacao# 📊 Análise de Desempenho: Bancos de Dados em Grafos vs. Relacionais para Motores de Recomendação
+# 📊 Análise de Desempenho: Bancos de Dados em Grafos vs. Relacionais para Motores de Recomendação
 
 [cite_start]Este repositório contém o código-fonte desenvolvido para o PFC 1
 
