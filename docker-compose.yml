@@ -1,0 +1,21 @@
+services:
+  # Banco Relacional
+  postgres_db:
+    image: postgres:latest
+    container_name: sql_engine_db
+    environment:
+      POSTGRES_USER: user_tcc
+      POSTGRES_PASSWORD: password_tcc
+      POSTGRES_DB: movielens_db
+    ports:
+      - "5432:5432"
+
+  # Banco de Grafos 
+  neo4j_db:
+    image: neo4j:latest
+    container_name: graph_engine_db
+    environment:
+      NEO4J_AUTH: neo4j/password_tcc
+    ports:
+      - "7474:7474" 
+      - "7687:7687"

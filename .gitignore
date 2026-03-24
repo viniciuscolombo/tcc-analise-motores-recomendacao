@@ -1,0 +1,13 @@
+data/
+*.zip
+*.csv
+
+__pycache__/
+*.pyc
+venv/
+.env
+
+.docker/
+
+.DS_Store
+Thumbs.db
