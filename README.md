@@ -1,6 +1,6 @@
-# Análise de Desempenho: Bancos de Dados em Grafos vs. Relacionais para Motores de Recomendação
+Análise de Desempenho: Bancos de Dados em Grafos vs. Relacionais para Motores de Recomendação
 
-[cite_start]Este repositório contém o código-fonte desenvolvido para o PFC 1
+Este repositório contém o código-fonte desenvolvido para o PFC 1
 
 ##  Objetivo
 [cite_start]O projeto visa desenvolver uma API de recomendação para avaliar e comparar a performance, o tempo de resposta de consultas e a escalabilidade arquitetural entre um banco de dados orientado a grafos (Neo4j) e um banco de dados relacional (PostgreSQL)[cite: 10].
