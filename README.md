@@ -3,10 +3,10 @@ Análise de Desempenho: Bancos de Dados em Grafos vs. Relacionais para Motores d
 Este repositório contém o código-fonte desenvolvido para o PFC 1
 
 ##  Objetivo
-[cite_start]O projeto visa desenvolver uma API de recomendação para avaliar e comparar a performance, o tempo de resposta de consultas e a escalabilidade arquitetural entre um banco de dados orientado a grafos (Neo4j) e um banco de dados relacional (PostgreSQL)[cite: 10].
+O projeto visa desenvolver uma API de recomendação para avaliar e comparar a performance, o tempo de resposta de consultas e a escalabilidade arquitetural entre um banco de dados orientado a grafos (Neo4j) e um banco de dados relacional (PostgreSQL).
 
 ##  Tecnologias Utilizadas
-* **Linguagem:** Python 3
+* **Linguagem:** Python
 * **Processamento de Dados (ETL):** Pandas
 * **Bancos de Dados:** PostgreSQL (Relacional) e Neo4j (Grafos)
 * **Infraestrutura:** Docker e Docker Compose
