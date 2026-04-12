@@ -12,13 +12,11 @@ O projeto visa desenvolver uma API de recomendação para avaliar e comparar a p
 * **Infraestrutura:** Docker e Docker Compose
 * **Dataset:** MovieLens (Small)
 
-##  Status Atual do Projeto
-- [x] Estruturação do repositório e ambiente virtual.
-- [x] Configuração da infraestrutura via Docker (Postgres e Neo4j).
-- [x] Script de Extração e Transformação (ETL) dos dados do MovieLens.
-- [x] Script de Carga (Load) populando o banco de dados PostgreSQL.
-- [ ] Script de Carga (Load) para o banco de dados Neo4j.
-- [ ] Desenvolvimento da API e Motores de Busca.
+##  Configurações dos dados
+Os arquivos de dados brutos (.csv) não são sincronizados com o repositório para manter a leveza do projeto. Siga os passos abaixo para configurar o ambiente:
+1. Baixe o dataset MovieLens Latest Small: https://files.grouplens.org/datasets/movielens/ml-latest-small.zip
+2. Crie uma pasta chamada data na raiz do projeto.
+3. Extraia o arquivo .zip e mova os arquivos movies.csv e ratings.csv para dentro da pasta data.
 
 ##  Como rodar o projeto localmente
 1. Clone o repositório.
@@ -27,3 +25,4 @@ O projeto visa desenvolver uma API de recomendação para avaliar e comparar a p
 3. Ative o ambiente virtual e instale as dependências.
 4. Execute o script de ETL e carga:
    `python scripts/load_sql.py`
+   `python scripts/load_graph.py`
