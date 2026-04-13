@@ -22,7 +22,18 @@ Os arquivos de dados brutos (.csv) não são sincronizados com o repositório pa
 1. Clone o repositório.
 2. Suba os bancos de dados utilizando o Docker:
    `docker-compose up -d`
-3. Ative o ambiente virtual e instale as dependências.
+3. Instale o uv (https://docs.astral.sh/uv/)
+3. Crie o ambiente virtual com o seguinte comando: `uv venv .venv`
+4. Ative o ambiente
+``` shell
+source .venv/bin/activate # Linux/MacOS
+# ou
+venv\Scripts\activate # Windows
+```
+5. Instale as dependências
+``` shell
+uv pip install -r requirements.txt
+```
 4. Execute o script de ETL e carga:
    `python scripts/load_sql.py`
    `python scripts/load_graph.py`
