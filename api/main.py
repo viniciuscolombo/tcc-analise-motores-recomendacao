@@ -87,3 +87,95 @@ def recomendar_neo4j(user_id: int):
             "tempo_execucao_ms": tempo_ms,
             "recomendacoes": filmes_recomendados,
         }
+
+#aqui segue uma ordem, em primeiro lugar encontra filmes que o usuario alvo avaliou acima/igual a 4.
+#em segundo lugar ele acha os vizinhos, cujo sao usuarios que gostaram dos mesmos filmes
+#em terceiro lugar pega os outros filmes que os vizinhos gostaram
+#em quarto lugar verifica que o usuario ainda nao viu esses filmes novos 
+#em quinto lugar calculr a forma de recomendacao baseada em quantos vizinhos gostaram
+
+
+@app.get("/recomendar/colaborativo/neo4j/{user_id}")
+def recomendar_colaborativo_neo4j(user_id: int):
+    query = """
+        match (u1:User {userId: $user_id})-[r1:RATED]->(m:Movie)
+        where r1.rating >= 4.0
+        
+        match (m)<-[r2:RATED]-(u2:User)
+        where r2.rating >= 4.0 AND u1 <> u2
+        
+        match (u2)-[r3:RATED]->(m2:Movie)
+        where r3.rating >= 4.0
+        
+        and not (u1)-[:RATED]->(m2)
+        
+        return m2.title as title, count(distinct u2) as score
+        order by score desc
+        limit 5
+    """
+    
+    start_time = time.time()
+    
+    with get_neo4j_session() as session:
+        result = session.run(query, user_id=user_id)
+        filmes_recomendados = [record["title"] for record in result]
+        
+    end_time = time.time()
+    tempo_ms = round((end_time - start_time) * 1000,2)
+    
+    return {
+        "usuario_alvo": user_id,
+        "motor":"Neo4j (Colaborativo)",
+        "tempo_execucao_ms": tempo_ms,
+        "recomendacoes": filmes_recomendados
+    }
+    
+    
+#Aqui ele segue a mesma premissa da busca de cima, so que com o postgres
+
+@app.get("/recomendar/colaborativo/postgres/{user_id}")
+def recomendar_colaborativo_postgres(user_id: int):
+    query = text("""
+        with FilmesAlvo AS (
+            select "movieId" 
+            from avaliacoes 
+            where "userId" = :user_id and rating >= 4.0
+        ),
+        Vizinhos AS (
+            select distinct a."userId"
+            from avaliacoes a
+            join FilmesAlvo fa ON a."movieId" = fa."movieId"
+            where a."userId" != :user_id and a.rating >= 4.0
+        ),
+        Recomendacoes AS (
+            select a."movieId", COUNT(distinct a."userId") as score
+            from avaliacoes a
+            join Vizinhos v ON a."userId" = v."userId"
+            where a.rating >= 4.0
+              and a."movieId" NOT IN (select "movieId" from avaliacoes where "userId" = :user_id)
+            group by a."movieId"
+        )
+        select f.title
+        from Recomendacoes r
+        join filmes f ON r."movieId" = f."movieId"
+        order by r.score desc
+        LIMIT 5;
+    """)
+    
+    start_time = time.time()
+    
+    with get_postgres_connection() as conn:
+        result = conn.execute(query, {"user_id": user_id}).fetchall()
+                             
+    end_time = time.time()
+    tempo_ms = round((end_time - start_time) * 1000, 2)                         
+                             
+    filmes_recomendados = [row[0] for row in result]                         
+                             
+    return{
+        "usuario_alvo": user_id,
+        "motor": "PostgresSQL (Colaborativo)",
+        "tempo_execucao_ms": tempo_ms,
+        "recomendacoes": filmes_recomendados
+    }                         
+    
