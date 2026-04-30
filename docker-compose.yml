@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: movielens_db
     ports:
       - "5432:5432"
+    volumes:
+      - ./dataset:/dataset_import
 
   # Banco de Grafos 
   neo4j_db:
@@ -19,3 +21,5 @@ services:
     ports:
       - "7474:7474" 
       - "7687:7687"
+    volumes:
+      - ./dataset:/var/lib/neo4j/import

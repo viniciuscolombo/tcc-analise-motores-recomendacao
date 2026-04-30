@@ -98,20 +98,18 @@ def recomendar_neo4j(user_id: int):
 @app.get("/recomendar/colaborativo/neo4j/{user_id}")
 def recomendar_colaborativo_neo4j(user_id: int):
     query = """
-        match (u1:User {userId: $user_id})-[r1:RATED]->(m:Movie)
-        where r1.rating >= 4.0
+        MATCH (u1:User {userId: $user_id})-[r1:RATED]->(m:Movie)<-[r2:RATED]-(u2:User)
+        WHERE r1.rating >= 4.0 AND r2.rating >= 4.0 AND u1 <> u2
+        WITH u1, u2, count(m) AS forca_amizade
+        ORDER BY forca_amizade DESC 
+        LIMIT 50
         
-        match (m)<-[r2:RATED]-(u2:User)
-        where r2.rating >= 4.0 AND u1 <> u2
+        MATCH (u2)-[r3:RATED]->(m2:Movie)
+        WHERE r3.rating >= 4.0 AND NOT (u1)-[:RATED]->(m2)
         
-        match (u2)-[r3:RATED]->(m2:Movie)
-        where r3.rating >= 4.0
-        
-        and not (u1)-[:RATED]->(m2)
-        
-        return m2.title as title, count(distinct u2) as score
-        order by score desc
-        limit 5
+        RETURN m2.title AS title, count(u2) AS score
+        ORDER BY score DESC
+        LIMIT 5
     """
     
     start_time = time.time()

@@ -42,8 +42,8 @@ def rodar_teste_stress(motor, url):
     return media
 
 if __name__ == "__main__":
-    url_postgres = f"http://127.0.0.1:8000/recomendar/postgres/{usuario_teste}"
-    url_neo4j = f"http://127.0.0.1:8000/recomendar/neo4j/{usuario_teste}"
+    url_postgres = f"http://127.0.0.1:8000/recomendar/colaborativo/postgres/{usuario_teste}"
+    url_neo4j = f"http://127.0.0.1:8000/recomendar/colaborativo/neo4j/{usuario_teste}"
     
     print("ligando os bancos")
     requests.get(url_postgres)
@@ -69,6 +69,6 @@ if __name__ == "__main__":
     plt.ylabel('Tempo em Milissegundos (ms)', fontsize=12)
     plt.ylim(0, max(medias) * 1.2) 
     
-    nome_arquivo = 'grafico_resultado.png'
+    nome_arquivo = 'grafico_colaborativo.png'
     plt.savefig(nome_arquivo, bbox_inches='tight')
-    print(f"✅ Gráfico salvo com sucesso na sua pasta como '{nome_arquivo}'!")
+    print(f" Gráfico salvo com sucesso na sua pasta como '{nome_arquivo}'!")
