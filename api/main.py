@@ -140,17 +140,20 @@ def recomendar_colaborativo_postgres(user_id: int):
             where "userId" = :user_id and rating >= 4.0
         ),
         Vizinhos AS (
-            select distinct a."userId"
+            select distinct a."userId", count(a."movieId") as forca_amizade
             from avaliacoes a
             join FilmesAlvo fa ON a."movieId" = fa."movieId"
             where a."userId" != :user_id and a.rating >= 4.0
+            group by a."userId"
+            order by forca_amizade desc
+            limit 50
         ),
         Recomendacoes AS (
             select a."movieId", COUNT(distinct a."userId") as score
             from avaliacoes a
             join Vizinhos v ON a."userId" = v."userId"
-            where a.rating >= 4.0
-              and a."movieId" NOT IN (select "movieId" from avaliacoes where "userId" = :user_id)
+            where a.rating >= 4.0 and 
+            a."movieId" NOT IN (select "movieId" from avaliacoes where "userId" = :user_id)
             group by a."movieId"
         )
         select f.title

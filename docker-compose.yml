@@ -22,4 +22,4 @@ services:
       - "7474:7474" 
       - "7687:7687"
     volumes:
-      - ./dataset:/var/lib/neo4j/import
+       - ./dataset:/var/lib/neo4j/import
