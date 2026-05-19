@@ -47,19 +47,25 @@ def load_to_neo4j():
             genres=genres_dict,
         )
 
-        print(" -> Inserindo Avaliações")
+        print(" -> Inserindo Avaliações em Lotes (Batching)...")
         ratings_dict = ratings_df[["userId", "movieId", "rating"]].to_dict("records")
-        session.run(
-            """
-            UNWIND $ratings AS r
-            MERGE (u:User {userId: r.userId})
-            WITH u, r
-            MATCH (m:Movie {movieId: r.movieId})
-            MERGE (u)-[rel:RATED]->(m)
-            SET rel.rating = r.rating
-        """,
-            ratings=ratings_dict,
-        )
+        
+        tamanho_lote = 10000
+        
+        for i in range(0, len(ratings_dict), tamanho_lote):
+            lote = ratings_dict[i : i + tamanho_lote]
+            session.run(
+                """
+                UNWIND $ratings AS r
+                MERGE (u:User {userId: r.userId})
+                WITH u, r
+                MATCH (m:Movie {movieId: r.movieId})
+                MERGE (u)-[rel:RATED]->(m)
+                SET rel.rating = r.rating
+                """,
+                ratings=lote,
+            )
+            print(f"    Processados {i + len(lote)} de {len(ratings_dict)}")
 
     driver.close()
     print("\nSucesso! Carga no Neo4j concluída. O banco de grafos está populado.")

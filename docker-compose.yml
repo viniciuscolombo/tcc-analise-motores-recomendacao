@@ -1,7 +1,7 @@
 services:
   # Banco Relacional
   postgres_db:
-    image: postgres:latest
+    image: postgres:16
     container_name: sql_engine_db
     environment:
       POSTGRES_USER: user_tcc
@@ -11,15 +11,24 @@ services:
       - "5432:5432"
     volumes:
       - ./dataset:/dataset_import
+      - postgres_data:/var/lib/postgresql/data
 
   # Banco de Grafos 
   neo4j_db:
     image: neo4j:latest
     container_name: graph_engine_db
     environment:
-      NEO4J_AUTH: neo4j/password_tcc
+      - NEO4J_AUTH=neo4j/password_tcc
+      - NEO4J_server_memory_heap_initial__size=1G
+      - NEO4J_server_memory_heap_max__size=1G
+      - NEO4J_server_memory_pagecache_size=1G
     ports:
       - "7474:7474" 
       - "7687:7687"
     volumes:
        - ./dataset:/var/lib/neo4j/import
+       - neo4j_data:/data
+
+volumes:
+  postgres_data:
+  neo4j_data:

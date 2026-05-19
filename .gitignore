@@ -1,5 +1,5 @@
-data/
-*.zip
+dataset/
+*.dat
 *.csv
 
 __pycache__/

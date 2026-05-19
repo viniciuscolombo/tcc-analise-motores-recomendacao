@@ -5,8 +5,8 @@ import os
 def extract_and_transform():
     print("Iniciando o processamento dos dados do MovieLens...")
 
-    movies_path = "data/movies.csv"
-    ratings_path = "data/ratings.csv"
+    movies_path = "dataset/movies.csv"
+    ratings_path = "dataset/ratings.csv"
 
     if not os.path.exists(movies_path):
         print(
