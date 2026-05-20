@@ -37,21 +37,17 @@ def recomendar_postgres(user_id: int):
     with get_postgres_connection() as conn:
         result = conn.execute(query, {"user_id": user_id}).fetchall()
 
-        end_time = time.time()
+    end_time = time.time()
 
-        filmes_recomendados = [row[0] for row in result]
+    filmes_recomendados = [row[0] for row in result]
+    tempo_ms = round((end_time - start_time) * 1000, 2)
 
-        tempo_ms = round((end_time - start_time) * 1000, 2)
-
-        return {
-            "usuario_alvo": user_id,
-            "motor": "PostgreSQL",
-            "tempo_execucao_ms": tempo_ms,
-            "recomendacoes": filmes_recomendados,
-        }
-
-
-# nós ficam entre parenteses(u:User) e relacionamentos ficam entre colchetes-r[r:RATED]->
+    return {
+        "usuario_alvo": user_id,
+        "motor": "PostgreSQL",
+        "tempo_execucao_ms": tempo_ms,
+        "recomendacoes": filmes_recomendados,
+    }
 
 
 @app.get("/recomendar/neo4j/{user_id}")
@@ -77,32 +73,26 @@ def recomendar_neo4j(user_id: int):
         result = session.run(query, user_id=user_id)
         filmes_recomendados = [record["title"] for record in result]
 
-        end_time = time.time()
+    end_time = time.time()
 
-        tempo_ms = round((end_time - start_time) * 1000, 2)
+    tempo_ms = round((end_time - start_time) * 1000, 2)
 
-        return {
-            "usuario_alvo": user_id,
-            "motor": "Neo4j",
-            "tempo_execucao_ms": tempo_ms,
-            "recomendacoes": filmes_recomendados,
-        }
-
-#aqui segue uma ordem, em primeiro lugar encontra filmes que o usuario alvo avaliou acima/igual a 4.
-#em segundo lugar ele acha os vizinhos, cujo sao usuarios que gostaram dos mesmos filmes
-#em terceiro lugar pega os outros filmes que os vizinhos gostaram
-#em quarto lugar verifica que o usuario ainda nao viu esses filmes novos 
-#em quinto lugar calculr a forma de recomendacao baseada em quantos vizinhos gostaram
+    return {
+        "usuario_alvo": user_id,
+        "motor": "Neo4j",
+        "tempo_execucao_ms": tempo_ms,
+        "recomendacoes": filmes_recomendados,
+    }
 
 
 @app.get("/recomendar/colaborativo/neo4j/{user_id}")
-def recomendar_colaborativo_neo4j(user_id: int):
+def recomendar_colaborativo_neo4j(user_id: int, limite_vizinhos: int = 50):
     query = """
         MATCH (u1:User {userId: $user_id})-[r1:RATED]->(m:Movie)<-[r2:RATED]-(u2:User)
         WHERE r1.rating >= 4.0 AND r2.rating >= 4.0 AND u1 <> u2
         WITH u1, u2, count(m) AS forca_amizade
         ORDER BY forca_amizade DESC 
-        LIMIT 50
+        LIMIT $limite
         
         MATCH (u2)-[r3:RATED]->(m2:Movie)
         WHERE r3.rating >= 4.0 AND NOT (u1)-[:RATED]->(m2)
@@ -115,24 +105,22 @@ def recomendar_colaborativo_neo4j(user_id: int):
     start_time = time.time()
     
     with get_neo4j_session() as session:
-        result = session.run(query, user_id=user_id)
+        result = session.run(query, user_id=user_id, limite=limite_vizinhos)
         filmes_recomendados = [record["title"] for record in result]
         
     end_time = time.time()
-    tempo_ms = round((end_time - start_time) * 1000,2)
+    tempo_ms = round((end_time - start_time) * 1000, 2)
     
     return {
         "usuario_alvo": user_id,
-        "motor":"Neo4j (Colaborativo)",
+        "motor": "Neo4j (Colaborativo)",
         "tempo_execucao_ms": tempo_ms,
         "recomendacoes": filmes_recomendados
     }
-    
-    
-#Aqui ele segue a mesma premissa da busca de cima, so que com o postgres
+
 
 @app.get("/recomendar/colaborativo/postgres/{user_id}")
-def recomendar_colaborativo_postgres(user_id: int):
+def recomendar_colaborativo_postgres(user_id: int, limite_vizinhos: int = 50):
     query = text("""
         with FilmesAlvo AS (
             select "movieId" 
@@ -146,7 +134,7 @@ def recomendar_colaborativo_postgres(user_id: int):
             where a."userId" != :user_id and a.rating >= 4.0
             group by a."userId"
             order by forca_amizade desc
-            limit 50
+            limit :limite
         ),
         Recomendacoes AS (
             select a."movieId", COUNT(distinct a."userId") as score
@@ -160,23 +148,22 @@ def recomendar_colaborativo_postgres(user_id: int):
         from Recomendacoes r
         join filmes f ON r."movieId" = f."movieId"
         order by r.score desc
-        LIMIT 5;
+        limit 5;
     """)
     
     start_time = time.time()
     
     with get_postgres_connection() as conn:
-        result = conn.execute(query, {"user_id": user_id}).fetchall()
+        result = conn.execute(query, {"user_id": user_id, "limite": limite_vizinhos}).fetchall()
                              
     end_time = time.time()
     tempo_ms = round((end_time - start_time) * 1000, 2)                         
                              
     filmes_recomendados = [row[0] for row in result]                         
                              
-    return{
+    return {
         "usuario_alvo": user_id,
         "motor": "PostgresSQL (Colaborativo)",
         "tempo_execucao_ms": tempo_ms,
         "recomendacoes": filmes_recomendados
-    }                         
-    
+    }

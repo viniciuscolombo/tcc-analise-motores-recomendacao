@@ -3,6 +3,7 @@ services:
   postgres_db:
     image: postgres:16
     container_name: sql_engine_db
+    shm_size: '1gb'
     environment:
       POSTGRES_USER: user_tcc
       POSTGRES_PASSWORD: password_tcc
